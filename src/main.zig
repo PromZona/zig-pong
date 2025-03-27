@@ -18,6 +18,8 @@ pub fn main() anyerror!void {
     }
 }
 
+const MAXSPEED: i32 = 300;
+
 const GameState = struct {
     // Allocator: std.mem.Allocator,
 
@@ -43,10 +45,10 @@ const GameState = struct {
             .ScreenWidth = w,
             .LeftPlayerPos = rl.Rectangle{ .x = 10, .y = halfScreenY, .width = 20, .height = 120 },
             .RightPlayerPos = rl.Rectangle{ .x = xPadding, .y = halfScreenY, .width = 20, .height = 120 },
-            .PlayerSpeed = 200.0,
+            .PlayerSpeed = 500.0,
             .BallPos = rl.Rectangle{ .x = halfScreenX, .y = halfScreenY, .width = 20.0, .height = 20 },
             .BallDir = .{ .x = 1.0, .y = 0.0 },
-            .BallSpeed = 300.0,
+            .BallSpeed = MAXSPEED,
         };
     }
 };
@@ -73,6 +75,7 @@ fn Input(state: *GameState) void {
 fn Update(state: *GameState) void {
     const ballVelocity: rl.Vector2 = .{ .x = state.*.BallDir.x * state.*.BallSpeed, .y = state.*.BallDir.y * state.*.BallSpeed };
     const frameTime: f32 = rl.getFrameTime();
+    state.*.BallSpeed += 1;
 
     state.*.BallPos.x += ballVelocity.x * frameTime;
     state.*.BallPos.y += ballVelocity.y * frameTime;
@@ -98,6 +101,7 @@ fn Update(state: *GameState) void {
 
     if (state.*.BallPos.x <= 0) {
         state.*.RightScore += 1;
+        state.*.BallSpeed = MAXSPEED;
         std.debug.print("Right Scored! {} : {}\n", .{ state.*.LefScore, state.*.RightScore });
         state.*.BallPos.x = state.*.ScreenWidth / 2.0;
         state.*.BallPos.y = state.*.ScreenHeight / 2.0;
@@ -106,6 +110,7 @@ fn Update(state: *GameState) void {
 
     if (state.*.BallPos.x + state.*.BallPos.width > state.*.ScreenWidth) {
         state.*.LefScore += 1;
+        state.*.BallSpeed = MAXSPEED;
         std.debug.print("Left Scored! {} : {}\n", .{ state.*.LefScore, state.*.RightScore });
         state.*.BallPos.x = state.*.ScreenWidth / 2.0;
         state.*.BallPos.y = state.*.ScreenHeight / 2.0;
